@@ -26,4 +26,61 @@ public class WhatsappRepository {
         this.customGroupCount = 0;
         this.messageId = 0;
     }
+
+    public int getCustomGroupCount() {
+        return customGroupCount;
+    }
+
+    public void setCustomGroupCount(int customGroupCount) {
+        this.customGroupCount = customGroupCount;
+    }
+
+    public String createUser(String name, String mobile)throws Exception{
+        if(userMobile.contains(mobile)){
+            throw new RuntimeException("User already exists");
+        }else {
+            userMobile.add(mobile);
+            User user = new User(name,mobile);
+            return "SUCCESS";
+        }
+    }
+
+    public Group createGroup(List<User> users) {
+        customGroupCount++;
+        String groupName = "Group "+customGroupCount;
+        Group group = new Group(groupName,users.size());
+        adminMap.put(group,users.get(0));
+        groupUserMap.put(group, users);
+        return group;
+    }
+
+    public int createMessage(String content) {
+        messageId++;
+        Message message = new Message(messageId,content);
+        return messageId;
+    }
+
+    public int sendMessage(Message message, User sender, Group group) throws Exception{
+        if(!adminMap.containsKey(group)){
+            throw  new RuntimeException("Group does not exist");
+        }else {
+            List<User> list= groupUserMap.get(group);
+            for(User u : list){
+                if(u == sender){
+                    senderMap.put(message,sender);
+
+                    List<Message> groupList = groupMessageMap.getOrDefault(group, new ArrayList<Message>());
+                    groupList.add(message);
+                    groupMessageMap.put(group, groupList);
+                    return groupList.size();
+                }
+            }
+            throw new RuntimeException("You are not allowed to send message");
+        }
+
+    }
+
+    public void changeAdmin(User approver, User user, Group group) {
+
+    }
 }

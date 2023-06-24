@@ -29,7 +29,7 @@ public class WhatsappService {
         return whatsappRepository.sendMessage(message, sender, group);
     }
 
-    public String changeAdmin(User approver, User user, Group group) {
-        whatsappRepository.changeAdmin(approver, user,group);
+    public String changeAdmin(User approver, User user, Group group) throws Exception{
+        return whatsappRepository.changeAdmin(approver, user,group);
     }
 }

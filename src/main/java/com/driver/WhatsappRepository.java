@@ -98,4 +98,55 @@ public class WhatsappRepository {
         }
         throw new RuntimeException("User is not a participant");
     }
+
+    public int removeUser(User user) {
+        Boolean userfound = false;
+        Group userGroup =null;
+        for (Group group  : groupUserMap.keySet()){
+            List<User> participants = groupUserMap.get(group);
+            for (User participant: participants){
+                if(participant.equals(user)){
+                    if (adminMap.get(group).equals(user)){
+                        throw new RuntimeException("Cannot remove admin");
+                    }
+                    userGroup = group;
+                    userfound = true;
+                    break;
+                }
+            }
+            if (userfound){
+                break;
+            }
+        }
+        if (userfound){
+            List<User> users= groupUserMap.get(userGroup);
+            List<User> updatedUsers = new ArrayList<>();
+            for(User participant: users) {
+                if (participant.equals(user)) {
+                    continue;
+                }
+                updatedUsers.add(participant);
+            }
+                groupUserMap.put(userGroup, updatedUsers);
+
+                List<Message> messages = groupMessageMap.get(userGroup);
+                List<Message> updatedMessage = new ArrayList<>();
+                for (Message message : messages){
+                    if (senderMap.get(message).equals(user))
+                        continue;
+                    updatedMessage.add(message);
+                }
+                groupMessageMap.put(userGroup,updatedMessage);
+
+                HashMap<Message, User> updatedSenderMap = new HashMap<>();
+                for (Message message:senderMap.keySet()){
+                    if (senderMap.get(message).equals(user))
+                        continue;
+                    updatedSenderMap.put(message, senderMap.get(message));
+                }
+                senderMap = updatedSenderMap;
+                return  updatedSenderMap.size() + updatedMessage.size() + updatedSenderMap.size();
+        }
+        throw new RuntimeException("User not found");
+    }
 }
